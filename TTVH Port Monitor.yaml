@@ -1,0 +1,665 @@
+zabbix_export:
+  version: '6.0'
+  date: '2025-09-11T10:00:00Z'
+  groups:
+    - uuid: 1ab34aedc3a74b27ad9a1322c2ae5e4f
+      name: 'Templates/Network Services TTVH'
+  templates:
+    - uuid: 8d408d9b5d4347729a49eaf28bb7db54
+      template: 'TTVH Port Monitor'
+      name: 'TTVH Port Monitor'
+      groups:
+        - name: 'Templates/Network Services TTVH'
+      macros:
+        - macro: '{$HTTP_PORT}'
+          value: '80'
+        - macro: '{$HTTPS_PORT}'
+          value: '443'
+        - macro: '{$SSH_PORT}'
+          value: '22'
+        - macro: '{$FTP_PORT}'
+          value: '21'
+        - macro: '{$SMTP_PORT}'
+          value: '25'
+        - macro: '{$POP3_PORT}'
+          value: '110'
+        - macro: '{$IMAP_PORT}'
+          value: '143'
+        - macro: '{$TELNET_PORT}'
+          value: '23'
+        - macro: '{$LDAP_PORT}'
+          value: '389'
+        - macro: '{$NNTP_PORT}'
+          value: '119'
+        - macro: '{$NTP_PORT}'
+          value: '123'
+        - macro: '{$MYSQL_PORT}'
+          value: '3306'
+        - macro: '{$POSTGRES_PORT}'
+          value: '5432'
+        - macro: '{$REDIS_PORT}'
+          value: '6379'
+        - macro: '{$MONGODB_PORT}'
+          value: '27017'
+        - macro: '{$DNS_PORT}'
+          value: '53'
+        - macro: '{$SNMP_PORT}'
+          value: '161'
+        - macro: '{$SERVICE_TIMEOUT}'
+          value: '3'
+        - macro: '{$SERVICE_CHECK_INTERVAL}'
+          value: '60s'
+        - macro: '{$PERFORMANCE_CHECK_INTERVAL}'
+          value: '300s'
+      items:
+        # TCP Service Checks
+        - uuid: c77c00251a8e42018facbdf733892375
+          name: 'HTTP Service Check'
+          key: 'net.tcp.service[http,,{$HTTP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check HTTP service availability on port {$HTTP_PORT}'
+          tags:
+            - tag: Application
+              value: 'Web Services'
+            - tag: Service
+              value: HTTP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa349
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[http,,{$HTTP_PORT}])=0'
+              name: 'HTTP service is down on {HOST.NAME} port {$HTTP_PORT}'
+              priority: HIGH
+              description: 'HTTP service is not responding on port {$HTTP_PORT}'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+            - uuid: e83f2d657b5d42bda01c10bb3b7fa350
+              expression: 'nodata(/TTVH Port Monitor/net.tcp.service[http,,{$HTTP_PORT}],5m)=1'
+              name: 'HTTP service check timeout on {HOST.NAME} port {$HTTP_PORT}'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+
+        - uuid: c77c00251a8e42018facbdf733892376
+          name: 'HTTPS Service Check'
+          key: 'net.tcp.service[https,,{$HTTPS_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check HTTPS service availability on port {$HTTPS_PORT}'
+          tags:
+            - tag: Application
+              value: 'Web Services'
+            - tag: Service
+              value: HTTPS
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa351
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[https,,{$HTTPS_PORT}])=0'
+              name: 'HTTPS service is down on {HOST.NAME} port {$HTTPS_PORT}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+            - uuid: e83f2d657b5d42bda01c10bb3b7fa352
+              expression: 'nodata(/TTVH Port Monitor/net.tcp.service[https,,{$HTTPS_PORT}],5m)=1'
+              name: 'HTTPS service check timeout on {HOST.NAME} port {$HTTPS_PORT}'
+              priority: WARNING
+
+        - uuid: c77c00251a8e42018facbdf733892377
+          name: 'SSH Service Check'
+          key: 'net.tcp.service[ssh,,{$SSH_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check SSH service availability on port {$SSH_PORT}'
+          tags:
+            - tag: Application
+              value: 'System Services'
+            - tag: Service
+              value: SSH
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa353
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[ssh,,{$SSH_PORT}])=0'
+              name: 'SSH service is down on {HOST.NAME} port {$SSH_PORT}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+            - uuid: e83f2d657b5d42bda01c10bb3b7fa354
+              expression: 'nodata(/TTVH Port Monitor/net.tcp.service[ssh,,{$SSH_PORT}],5m)=1'
+              name: 'SSH service check timeout on {HOST.NAME} port {$SSH_PORT}'
+              priority: WARNING
+
+        - uuid: c77c00251a8e42018facbdf733892378
+          name: 'FTP Service Check'
+          key: 'net.tcp.service[ftp,,{$FTP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check FTP service availability on port {$FTP_PORT}'
+          tags:
+            - tag: Application
+              value: 'File Services'
+            - tag: Service
+              value: FTP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa355
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[ftp,,{$FTP_PORT}])=0'
+              name: 'FTP service is down on {HOST.NAME} port {$FTP_PORT}'
+              priority: AVERAGE
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: AVERAGE
+
+        - uuid: c77c00251a8e42018facbdf733892379
+          name: 'SMTP Service Check'
+          key: 'net.tcp.service[smtp,,{$SMTP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check SMTP service availability on port {$SMTP_PORT}'
+          tags:
+            - tag: Application
+              value: 'Mail Services'
+            - tag: Service
+              value: SMTP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa356
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[smtp,,{$SMTP_PORT}])=0'
+              name: 'SMTP service is down on {HOST.NAME} port {$SMTP_PORT}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892380
+          name: 'POP3 Service Check'
+          key: 'net.tcp.service[pop,,{$POP3_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check POP3 service availability on port {$POP3_PORT}'
+          tags:
+            - tag: Application
+              value: 'Mail Services'
+            - tag: Service
+              value: POP3
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa357
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[pop,,{$POP3_PORT}])=0'
+              name: 'POP3 service is down on {HOST.NAME} port {$POP3_PORT}'
+              priority: AVERAGE
+
+        - uuid: c77c00251a8e42018facbdf733892381
+          name: 'IMAP Service Check'
+          key: 'net.tcp.service[imap,,{$IMAP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check IMAP service availability on port {$IMAP_PORT}'
+          tags:
+            - tag: Application
+              value: 'Mail Services'
+            - tag: Service
+              value: IMAP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa358
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[imap,,{$IMAP_PORT}])=0'
+              name: 'IMAP service is down on {HOST.NAME} port {$IMAP_PORT}'
+              priority: AVERAGE
+
+        - uuid: c77c00251a8e42018facbdf733892382
+          name: 'TELNET Service Check'
+          key: 'net.tcp.service[telnet,,{$TELNET_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check TELNET service availability on port {$TELNET_PORT}'
+          tags:
+            - tag: Application
+              value: 'System Services'
+            - tag: Service
+              value: TELNET
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa359
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[telnet,,{$TELNET_PORT}])=0'
+              name: 'TELNET service is down on {HOST.NAME} port {$TELNET_PORT}'
+              priority: INFO
+
+        - uuid: c77c00251a8e42018facbdf733892383
+          name: 'LDAP Service Check'
+          key: 'net.tcp.service[ldap,,{$LDAP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check LDAP service availability on port {$LDAP_PORT}'
+          tags:
+            - tag: Application
+              value: 'Directory Services'
+            - tag: Service
+              value: LDAP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa360
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[ldap,,{$LDAP_PORT}])=0'
+              name: 'LDAP service is down on {HOST.NAME} port {$LDAP_PORT}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892384
+          name: 'NNTP Service Check'
+          key: 'net.tcp.service[nntp,,{$NNTP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check NNTP service availability on port {$NNTP_PORT}'
+          tags:
+            - tag: Application
+              value: 'News Services'
+            - tag: Service
+              value: NNTP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa361
+              expression: 'last(/TTVH Port Monitor/net.tcp.service[nntp,,{$NNTP_PORT}])=0'
+              name: 'NNTP service is down on {HOST.NAME} port {$NNTP_PORT}'
+              priority: INFO
+
+        # TCP Port Listen Checks
+        - uuid: c77c00251a8e42018facbdf733892385
+          name: 'MySQL Port Listen Check'
+          key: 'net.tcp.listen[{$MYSQL_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if MySQL port {$MYSQL_PORT} is listening'
+          tags:
+            - tag: Application
+              value: 'Database Services'
+            - tag: Service
+              value: MySQL
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa362
+              expression: 'last(/TTVH Port Monitor/net.tcp.listen[{$MYSQL_PORT}])=0'
+              name: 'MySQL port {$MYSQL_PORT} is not listening on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892386
+          name: 'PostgreSQL Port Listen Check'
+          key: 'net.tcp.listen[{$POSTGRES_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if PostgreSQL port {$POSTGRES_PORT} is listening'
+          tags:
+            - tag: Application
+              value: 'Database Services'
+            - tag: Service
+              value: PostgreSQL
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa363
+              expression: 'last(/TTVH Port Monitor/net.tcp.listen[{$POSTGRES_PORT}])=0'
+              name: 'PostgreSQL port {$POSTGRES_PORT} is not listening on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892387
+          name: 'Redis Port Listen Check'
+          key: 'net.tcp.listen[{$REDIS_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if Redis port {$REDIS_PORT} is listening'
+          tags:
+            - tag: Application
+              value: 'Cache Services'
+            - tag: Service
+              value: Redis
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa364
+              expression: 'last(/TTVH Port Monitor/net.tcp.listen[{$REDIS_PORT}])=0'
+              name: 'Redis port {$REDIS_PORT} is not listening on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892388
+          name: 'MongoDB Port Listen Check'
+          key: 'net.tcp.listen[{$MONGODB_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if MongoDB port {$MONGODB_PORT} is listening'
+          tags:
+            - tag: Application
+              value: 'Database Services'
+            - tag: Service
+              value: MongoDB
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa365
+              expression: 'last(/TTVH Port Monitor/net.tcp.listen[{$MONGODB_PORT}])=0'
+              name: 'MongoDB port {$MONGODB_PORT} is not listening on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        # UDP Service Checks
+        - uuid: c77c00251a8e42018facbdf733892389
+          name: 'NTP Service Check'
+          key: 'net.udp.service[ntp,,{$NTP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check NTP service availability on port {$NTP_PORT}'
+          tags:
+            - tag: Application
+              value: 'Time Services'
+            - tag: Service
+              value: NTP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa366
+              expression: 'last(/TTVH Port Monitor/net.udp.service[ntp,,{$NTP_PORT}])=0'
+              name: 'NTP service is down on {HOST.NAME} port {$NTP_PORT}'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+
+        - uuid: c77c00251a8e42018facbdf733892390
+          name: 'DNS Port Listen Check (UDP)'
+          key: 'net.udp.listen[{$DNS_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if DNS port {$DNS_PORT} is listening on UDP'
+          tags:
+            - tag: Application
+              value: 'DNS Services'
+            - tag: Service
+              value: DNS
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa367
+              expression: 'last(/TTVH Port Monitor/net.udp.listen[{$DNS_PORT}])=0'
+              name: 'DNS UDP port {$DNS_PORT} is not listening on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892391
+          name: 'SNMP Port Listen Check (UDP)'
+          key: 'net.udp.listen[{$SNMP_PORT}]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if SNMP port {$SNMP_PORT} is listening on UDP'
+          tags:
+            - tag: Application
+              value: 'Monitoring Services'
+            - tag: Service
+              value: SNMP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa368
+              expression: 'last(/TTVH Port Monitor/net.udp.listen[{$SNMP_PORT}])=0'
+              name: 'SNMP UDP port {$SNMP_PORT} is not listening on {HOST.NAME}'
+              priority: INFO
+
+        # Performance Checks
+        - uuid: c77c00251a8e42018facbdf733892392
+          name: 'HTTP Service Response Time'
+          key: 'net.tcp.service.perf[http,,{$HTTP_PORT}]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: s
+          description: 'HTTP service response time on port {$HTTP_PORT}'
+          tags:
+            - tag: Application
+              value: 'Performance'
+            - tag: Service
+              value: HTTP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa369
+              expression: 'avg(/TTVH Port Monitor/net.tcp.service.perf[http,,{$HTTP_PORT}],5m)>5'
+              name: 'HTTP response time > 5 seconds on {HOST.NAME} port {$HTTP_PORT}'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa370
+              expression: 'avg(/TTVH Port Monitor/net.tcp.service.perf[http,,{$HTTP_PORT}],5m)>10'
+              name: 'HTTP response time > 10 seconds on {HOST.NAME} port {$HTTP_PORT}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892393
+          name: 'HTTPS Service Response Time'
+          key: 'net.tcp.service.perf[https,,{$HTTPS_PORT}]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: s
+          description: 'HTTPS service response time on port {$HTTPS_PORT}'
+          tags:
+            - tag: Application
+              value: 'Performance'
+            - tag: Service
+              value: HTTPS
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa371
+              expression: 'avg(/TTVH Port Monitor/net.tcp.service.perf[https,,{$HTTPS_PORT}],5m)>5'
+              name: 'HTTPS response time > 5 seconds on {HOST.NAME} port {$HTTPS_PORT}'
+              priority: WARNING
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa372
+              expression: 'avg(/TTVH Port Monitor/net.tcp.service.perf[https,,{$HTTPS_PORT}],5m)>10'
+              name: 'HTTPS response time > 10 seconds on {HOST.NAME} port {$HTTPS_PORT}'
+              priority: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892394
+          name: 'SSH Service Response Time'
+          key: 'net.tcp.service.perf[ssh,,{$SSH_PORT}]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: s
+          description: 'SSH service response time on port {$SSH_PORT}'
+          tags:
+            - tag: Application
+              value: 'Performance'
+            - tag: Service
+              value: SSH
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa373
+              expression: 'avg(/TTVH Port Monitor/net.tcp.service.perf[ssh,,{$SSH_PORT}],5m)>3'
+              name: 'SSH response time > 3 seconds on {HOST.NAME} port {$SSH_PORT}'
+              priority: WARNING
+
+        - uuid: c77c00251a8e42018facbdf733892395
+          name: 'NTP Service Response Time'
+          key: 'net.udp.service.perf[ntp,,{$NTP_PORT}]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: s
+          description: 'NTP service response time on port {$NTP_PORT}'
+          tags:
+            - tag: Application
+              value: 'Performance'
+            - tag: Service
+              value: NTP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa374
+              expression: 'avg(/TTVH Port Monitor/net.udp.service.perf[ntp,,{$NTP_PORT}],5m)>2'
+              name: 'NTP response time > 2 seconds on {HOST.NAME} port {$NTP_PORT}'
+              priority: WARNING
+
+        # Socket Count Monitoring
+        - uuid: c77c00251a8e42018facbdf733892396
+          name: 'TCP Socket Count - ESTABLISHED'
+          key: 'net.tcp.socket.count[,,,established,]'
+          delay: 300s
+          history: '7d'
+          trends: '365d'
+          description: 'Number of established TCP connections'
+          tags:
+            - tag: Application
+              value: 'Network Statistics'
+            - tag: Service
+              value: TCP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa375
+              expression: 'last(/TTVH Port Monitor/net.tcp.socket.count[,,,established,])>1000'
+              name: 'Too many established TCP connections on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa376
+              expression: 'last(/TTVH Port Monitor/net.tcp.socket.count[,,,established,])>5000'
+              name: 'Critical number of established TCP connections on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c77c00251a8e42018facbdf733892397
+          name: 'TCP Socket Count - TIME_WAIT'
+          key: 'net.tcp.socket.count[,,,time_wait,]'
+          delay: 300s
+          history: '7d'
+          trends: '365d'
+          description: 'Number of TCP connections in TIME_WAIT state'
+          tags:
+            - tag: Application
+              value: 'Network Statistics'
+            - tag: Service
+              value: TCP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa377
+              expression: 'last(/TTVH Port Monitor/net.tcp.socket.count[,,,time_wait,])>2000'
+              name: 'Too many TCP connections in TIME_WAIT state on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+
+        - uuid: c77c00251a8e42018facbdf733892398
+          name: 'TCP Socket Count - LISTEN'
+          key: 'net.tcp.socket.count[,,,listen,]'
+          delay: 300s
+          history: '7d'
+          trends: '365d'
+          description: 'Number of TCP sockets in LISTEN state'
+          tags:
+            - tag: Application
+              value: 'Network Statistics'
+            - tag: Service
+              value: TCP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa378
+              expression: 'change(/TTVH Port Monitor/net.tcp.socket.count[,,,listen,])<>0'
+              name: 'Number of listening TCP sockets changed on {HOST.NAME}'
+              priority: INFO
+              description: 'The number of listening TCP sockets has changed, which may indicate service configuration changes'
+
+        - uuid: c77c00251a8e42018facbdf733892399
+          name: 'UDP Socket Count'
+          key: 'net.udp.socket.count[,,,,]'
+          delay: 300s
+          history: '7d'
+          trends: '365d'
+          description: 'Total number of UDP sockets'
+          tags:
+            - tag: Application
+              value: 'Network Statistics'
+            - tag: Service
+              value: UDP
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa379
+              expression: 'last(/TTVH Port Monitor/net.udp.socket.count[,,,,])>500'
+              name: 'Too many UDP sockets on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+
+        # Custom TCP Port Checks
+        - uuid: c77c00251a8e42018facbdf733892400
+          name: 'Custom TCP Port 8080 Check'
+          key: 'net.tcp.port[,8080]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if TCP port 8080 is reachable'
+          tags:
+            - tag: Application
+              value: 'Custom Ports'
+            - tag: Service
+              value: 'Custom TCP'
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa380
+              expression: 'last(/TTVH Port Monitor/net.tcp.port[,8080])=0'
+              name: 'TCP port 8080 is not reachable on {HOST.NAME}'
+              priority: AVERAGE
+
+        - uuid: c77c00251a8e42018facbdf733892401
+          name: 'Custom TCP Port 9000 Check'
+          key: 'net.tcp.port[,9000]'
+          delay: '{$SERVICE_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Check if TCP port 9000 is reachable'
+          tags:
+            - tag: Application
+              value: 'Custom Ports'
+            - tag: Service
+              value: 'Custom TCP'
+          triggers:
+            - uuid: dd3f2d657b5d42bda01c10bb3b7fa381
+              expression: 'last(/TTVH Port Monitor/net.tcp.port[,9000])=0'
+              name: 'TCP port 9000 is not reachable on {HOST.NAME}'
+              priority: AVERAGE
