@@ -1,0 +1,704 @@
+zabbix_export:
+  version: '6.0'
+  date: '2025-09-11T11:00:00Z'
+  groups:
+    - uuid: 2ab34aedc3a74b27ad9a1322c2ae5e5f
+      name: 'Templates/Process Monitor TTVH'
+  templates:
+    - uuid: 9d408d9b5d4347729a49eaf28bb7db55
+      template: 'TTVH Process Monitor'
+      name: 'TTVH Process Monitor'
+      groups:
+        - name: 'Templates/Process Monitor TTVH'
+      macros:
+        - macro: '{$SSH_PROCESS_NAME}'
+          value: 'sshd'
+        - macro: '{$ZABBIX_AGENT_PROCESS_NAME}'
+          value: 'zabbix_agentd'
+        - macro: '{$SYSTEMD_PROCESS_NAME}'
+          value: 'systemd'
+        - macro: '{$CRON_PROCESS_NAME}'
+          value: 'cron'
+        - macro: '{$RSYSLOG_PROCESS_NAME}'
+          value: 'rsyslogd'
+        - macro: '{$DBUS_PROCESS_NAME}'
+          value: 'dbus'
+        - macro: '{$NETWORKD_PROCESS_NAME}'
+          value: 'systemd-networkd'
+        - macro: '{$RESOLVED_PROCESS_NAME}'
+          value: 'systemd-resolved'
+        - macro: '{$CHRONYD_PROCESS_NAME}'
+          value: 'chronyd'
+        - macro: '{$KERNEL_THREAD_NAME}'
+          value: 'kthreadd'
+        - macro: '{$INIT_PROCESS_NAME}'
+          value: 'init'
+        - macro: '{$UDEV_PROCESS_NAME}'
+          value: 'udevd'
+        - macro: '{$LOGIND_PROCESS_NAME}'
+          value: 'systemd-logind'
+        - macro: '{$SYSTEMD_RESOLVED_PROCESS_NAME}'
+          value: 'systemd-resolve'
+        - macro: '{$SYSTEMD_TIMESYNCD_PROCESS_NAME}'
+          value: 'systemd-timesyn'
+        - macro: '{$POLKIT_PROCESS_NAME}'
+          value: 'polkitd'
+        - macro: '{$RPCBIND_PROCESS_NAME}'
+          value: 'rpcbind'
+        - macro: '{$AVAHI_PROCESS_NAME}'
+          value: 'avahi-daemon'
+        - macro: '{$SNMPD_PROCESS_NAME}'
+          value: 'snmpd'
+        - macro: '{$MIN_PROCESS_COUNT}'
+          value: '1'
+        - macro: '{$MAX_PROCESS_COUNT}'
+          value: '100'
+        - macro: '{$HIGH_CPU_THRESHOLD}'
+          value: '80'
+        - macro: '{$CRITICAL_CPU_THRESHOLD}'
+          value: '95'
+        - macro: '{$HIGH_MEMORY_THRESHOLD_MB}'
+          value: '512'
+        - macro: '{$CRITICAL_MEMORY_THRESHOLD_MB}'
+          value: '1024'
+        - macro: '{$PROCESS_CHECK_INTERVAL}'
+          value: '60s'
+        - macro: '{$PERFORMANCE_CHECK_INTERVAL}'
+          value: '300s'
+        - macro: '{$ZOMBIE_THRESHOLD}'
+          value: '5'
+        - macro: '{$DISK_WAIT_THRESHOLD}'
+          value: '10'
+      items:
+        # System Process Count Monitoring
+        - uuid: 3ac23f5b2d5b4d6fb14cf31035171ae7
+          name: 'SSH Process Count'
+          key: 'proc.num[{$SSH_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of SSH daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: SSH
+          triggers:
+            - uuid: 3ac23f5b2d5b4d6fb14cf31035171ae8
+              expression: 'last(/TTVH Process Monitor/proc.num[{$SSH_PROCESS_NAME}])=0'
+              name: 'SSH daemon process is not running on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+            - uuid: 3ac23f5b2d5b4d6fb14cf31035171ae9
+              expression: 'last(/TTVH Process Monitor/proc.num[{$SSH_PROCESS_NAME}])>50'
+              name: 'Too many SSH processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+
+        - uuid: ff3b697d54c446b5abab69528fcc977f
+          name: 'Zabbix Agent Process Count'
+          key: 'proc.num[,,,zabbix_agent]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of Zabbix agent processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: 'Zabbix Agent'
+          triggers:
+            - uuid: ff3b697d54c446b5abab69528fcc9780
+              expression: 'last(/TTVH Process Monitor/proc.num[,,,zabbix_agent])=0'
+              name: 'Zabbix agent process is not running on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+            - uuid: ff3b697d54c446b5abab69528fcc9781
+              expression: 'last(/TTVH Process Monitor/proc.num[,,,zabbix_agent])<5'
+              name: 'Not enough Zabbix agent processes on {HOST.NAME} (<{ITEM.LASTVALUE})'
+              priority: WARNING
+
+        - uuid: b8a41652cb0a433dbc022ee08dced6b3
+          name: 'Systemd Process Count'
+          key: 'proc.num[{$SYSTEMD_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of systemd processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Systemd
+          triggers:
+            - uuid: b8a41652cb0a433dbc022ee08dced6b4
+              expression: 'last(/TTVH Process Monitor/proc.num[{$SYSTEMD_PROCESS_NAME}])=0'
+              name: 'Systemd process is not running on {HOST.NAME}'
+              priority: DISASTER
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: DISASTER
+
+        - uuid: dfac7e3c43894d0b91700950751b9da7
+          name: 'Cron Process Count'
+          key: 'proc.num[{$CRON_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of cron daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Cron
+          triggers:
+            - uuid: dfac7e3c43894d0b91700950751b9da8
+              expression: 'last(/TTVH Process Monitor/proc.num[{$CRON_PROCESS_NAME}])=0'
+              name: 'Cron daemon process is not running on {HOST.NAME}'
+              priority: AVERAGE
+
+        - uuid: 1ba863cfe37541c4ad859dc1aae3a468
+          name: 'Rsyslog Process Count'
+          key: 'proc.num[{$RSYSLOG_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of rsyslog daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Rsyslog
+          triggers:
+            - uuid: 1ba863cfe37541c4ad859dc1aae3a469
+              expression: 'last(/TTVH Process Monitor/proc.num[{$RSYSLOG_PROCESS_NAME}])=0'
+              name: 'Rsyslog daemon process is not running on {HOST.NAME}'
+              priority: AVERAGE
+
+        - uuid: 71f61ba27fa8419e96d29108c7368661
+          name: 'D-Bus Process Count'
+          key: 'proc.num[{$DBUS_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of D-Bus daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: D-Bus
+          triggers:
+            - uuid: 71f61ba27fa8419e96d29108c7368662
+              expression: 'last(/TTVH Process Monitor/proc.num[{$DBUS_PROCESS_NAME}])=0'
+              name: 'D-Bus daemon process is not running on {HOST.NAME}'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: 7c13602a78c64af6a66b03a3de55eb63
+          name: 'NetworkManager Process Count'
+          key: 'proc.num[{$NETWORKD_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of systemd-networkd processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: NetworkManager
+
+        - uuid: 36a2fff2e72c4d3a901213642844af82
+          name: 'DNS Resolver Process Count'
+          key: 'proc.num[{$RESOLVED_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of systemd-resolved processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: 'DNS Resolver'
+
+        - uuid: 13a717704b0f461387346c7107395a5f
+          name: 'Chrony NTP Process Count'
+          key: 'proc.num[{$CHRONYD_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of chronyd NTP daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Chrony
+          triggers:
+            - uuid: 13a717704b0f461387346c7107395a60
+              expression: 'last(/TTVH Process Monitor/proc.num[{$CHRONYD_PROCESS_NAME}])=0'
+              name: 'Chrony NTP daemon process is not running on {HOST.NAME}'
+              priority: WARNING
+
+        - uuid: fa46df09f6064bd5a2d0f0e6a26feeb9
+          name: 'Init Process Count'
+          key: 'proc.num[{$INIT_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of init processes running (PID 1)'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Init
+          triggers:
+            - uuid: fa46df09f6064bd5a2d0f0e6a26feeba
+              expression: 'last(/TTVH Process Monitor/proc.num[{$INIT_PROCESS_NAME}])=0'
+              name: 'Init process (PID 1) is not running on {HOST.NAME}'
+              priority: DISASTER
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: DISASTER
+
+        - uuid: 9acd574b4c8c49f48a20a6b49ab0faa4
+          name: 'Udev Process Count'
+          key: 'proc.num[{$UDEV_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of udev daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Udev
+
+        - uuid: 45398277112b47aaa79b67ec9cb8a06e
+          name: 'Logind Process Count'
+          key: 'proc.num[{$LOGIND_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of systemd-logind processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Logind
+
+        - uuid: e62fe3ef2ecb48e48546b8d61aead417
+          name: 'Timesyncd Process Count'
+          key: 'proc.num[{$SYSTEMD_TIMESYNCD_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of systemd-timesyncd processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Timesyncd
+
+        - uuid: 268d87621fa64d4b940210053d2acc8d
+          name: 'PolicyKit Process Count'
+          key: 'proc.num[{$POLKIT_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of polkitd processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: PolicyKit
+
+        - uuid: 663b965b6eab4979aef717388f435d5e
+          name: 'RPC Bind Process Count'
+          key: 'proc.num[{$RPCBIND_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of rpcbind processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: RPC
+
+        - uuid: 2dca2fcfe34240e284211ae9d9bc3d92
+          name: 'Avahi Process Count'
+          key: 'proc.num[{$AVAHI_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of avahi-daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: Avahi
+
+        - uuid: 99d3b150b1644bef82e2a15dd9d72ec9
+          name: 'SNMP Daemon Process Count'
+          key: 'proc.num[{$SNMPD_PROCESS_NAME}]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of SNMP daemon processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: SNMP
+
+        # Process State Monitoring
+        - uuid: 7116c1214a8b4a06b5e34ec38f3b9940
+          name: 'Running Processes Count'
+          key: 'proc.num[,,run]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of processes in running state'
+          tags:
+            - tag: Application
+              value: 'Process State'
+            - tag: Service
+              value: System
+          triggers:
+            - uuid: 7116c1214a8b4a06b5e34ec38f3b9941
+              expression: 'last(/TTVH Process Monitor/proc.num[,,run])>200'
+              name: 'Too many running processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+            - uuid: 7116c1214a8b4a06b5e34ec38f3b9942
+              expression: 'last(/TTVH Process Monitor/proc.num[,,run])>500'
+              name: 'Critical number of running processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: 5f8484a403754ff8ac740b833bce296d
+          name: 'Sleeping Processes Count'
+          key: 'proc.num[,,sleep]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of processes in sleeping state'
+          tags:
+            - tag: Application
+              value: 'Process State'
+            - tag: Service
+              value: System
+          triggers:
+            - uuid: 5f8484a403754ff8ac740b833bce296e
+              expression: 'last(/TTVH Process Monitor/proc.num[,,sleep])>1000'
+              name: 'Too many sleeping processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: INFO
+
+        - uuid: 13fd831e88834e9189a54cd2e8e37458
+          name: 'Zombie Processes Count'
+          key: 'proc.num[,,zomb]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of zombie processes'
+          tags:
+            - tag: Application
+              value: 'Process State'
+            - tag: Service
+              value: System
+          triggers:
+            - uuid: 13fd831e88834e9189a54cd2e8e37459
+              expression: 'last(/TTVH Process Monitor/proc.num[,,zomb])>0'
+              name: 'Zombie processes detected on {HOST.NAME} ({ITEM.LASTVALUE})'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+            - uuid: 13fd831e88834e9189a54cd2e8e3745a
+              expression: 'last(/TTVH Process Monitor/proc.num[,,zomb])>{$ZOMBIE_THRESHOLD}'
+              name: 'Too many zombie processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: a17120f9e19a448a8b1f2066efb2628b
+          name: 'Disk Wait Processes Count'
+          key: 'proc.num[,,disk]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of processes waiting for disk I/O'
+          tags:
+            - tag: Application
+              value: 'Process State'
+            - tag: Service
+              value: System
+          triggers:
+            - uuid: a17120f9e19a448a8b1f2066efb2628c
+              expression: 'last(/TTVH Process Monitor/proc.num[,,disk])>{$DISK_WAIT_THRESHOLD}'
+              name: 'Too many processes waiting for disk I/O on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+            - uuid: a17120f9e19a448a8b1f2066efb2628d
+              expression: 'last(/TTVH Process Monitor/proc.num[,,disk])>50'
+              name: 'Critical number of processes waiting for disk I/O on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: 04ee17abe0844686a25abed07a348b6f
+          name: 'Stopped Processes Count'
+          key: 'proc.num[,,stop]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of stopped processes'
+          tags:
+            - tag: Application
+              value: 'Process State'
+            - tag: Service
+              value: System
+          triggers:
+            - uuid: 04ee17abe0844686a25abed07a348b70
+              expression: 'last(/TTVH Process Monitor/proc.num[,,stop])>5'
+              name: 'Too many stopped processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+
+        - uuid: 2e1def67d49e4feea76dbe4455b21d50
+          name: 'Traced Processes Count'
+          key: 'proc.num[,,trace]'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Number of traced processes'
+          tags:
+            - tag: Application
+              value: 'Process State'
+            - tag: Service
+              value: System
+          triggers:
+            - uuid: 2e1def67d49e4feea76dbe4455b21d51
+              expression: 'last(/TTVH Process Monitor/proc.num[,,trace])>0'
+              name: 'Traced processes detected on {HOST.NAME} ({ITEM.LASTVALUE})'
+              priority: INFO
+
+        # Total Process Count
+        - uuid: 09925c3318a54f72b95c656f5172f71f
+          name: 'Total Process Count'
+          key: 'proc.num'
+          delay: '{$PROCESS_CHECK_INTERVAL}'
+          history: '7d'
+          trends: '365d'
+          description: 'Total number of processes running'
+          tags:
+            - tag: Application
+              value: 'Process Count'
+            - tag: Service
+              value: System
+          triggers:
+            - uuid: 09925c3318a54f72b95c656f5172f720
+              expression: 'last(/TTVH Process Monitor/proc.num)>1000'
+              name: 'Too many total processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+            - uuid: 09925c3318a54f72b95c656f5172f721
+              expression: 'last(/TTVH Process Monitor/proc.num)>2000'
+              name: 'Critical number of total processes on {HOST.NAME} (>{ITEM.LASTVALUE})'
+              priority: HIGH
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+            - uuid: 09925c3318a54f72b95c656f5172f722
+              expression: 'change(/TTVH Process Monitor/proc.num)>100'
+              name: 'Process count increased significantly on {HOST.NAME} (+{ITEM.LASTVALUE})'
+              priority: INFO
+
+        # Process CPU Usage
+        - uuid: aad2977ab4c942d3ba8c50a84289571c
+          name: 'SSH Process CPU Usage'
+          key: 'proc.cpu.util[{$SSH_PROCESS_NAME},,total]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: '%'
+          description: 'Total CPU usage by SSH processes'
+          tags:
+            - tag: Application
+              value: 'Process CPU'
+            - tag: Service
+              value: SSH
+          triggers:
+            - uuid: aad2977ab4c942d3ba8c50a84289571d
+              expression: 'avg(/TTVH Process Monitor/proc.cpu.util[{$SSH_PROCESS_NAME},,total],5m)>{$HIGH_CPU_THRESHOLD}'
+              name: 'SSH process high CPU usage on {HOST.NAME} (>{$HIGH_CPU_THRESHOLD}%)'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
+
+        - uuid: 0a8044247dc045a7a35e1fdf44aeb63d
+          name: 'Zabbix Agent CPU Usage'
+          key: 'proc.cpu.util[,,,zabbix_agent,total]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: '%'
+          description: 'Total CPU usage by Zabbix agent processes'
+          tags:
+            - tag: Application
+              value: 'Process CPU'
+            - tag: Service
+              value: 'Zabbix Agent'
+          triggers:
+            - uuid: 0a8044247dc045a7a35e1fdf44aeb63e
+              expression: 'avg(/TTVH Process Monitor/proc.cpu.util[,,,zabbix_agent,total],5m)>{$HIGH_CPU_THRESHOLD}'
+              name: 'Zabbix agent high CPU usage on {HOST.NAME} (>{$HIGH_CPU_THRESHOLD}%)'
+              priority: WARNING
+
+        - uuid: 7f62ef5c653846db8c03fa7b74175c14
+          name: 'Systemd CPU Usage'
+          key: 'proc.cpu.util[{$SYSTEMD_PROCESS_NAME},,total]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: '%'
+          description: 'Total CPU usage by systemd processes'
+          tags:
+            - tag: Application
+              value: 'Process CPU'
+            - tag: Service
+              value: Systemd
+          triggers:
+            - uuid: 7f62ef5c653846db8c03fa7b74175c15
+              expression: 'avg(/TTVH Process Monitor/proc.cpu.util[{$SYSTEMD_PROCESS_NAME},,total],5m)>50'
+              name: 'Systemd high CPU usage on {HOST.NAME} (>50%)'
+              priority: WARNING
+
+        - uuid: d11d21aaf52142ee845f271d66710aba
+          name: 'Cron CPU Usage'
+          key: 'proc.cpu.util[{$CRON_PROCESS_NAME},,total]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: '%'
+          description: 'Total CPU usage by cron processes'
+          tags:
+            - tag: Application
+              value: 'Process CPU'
+            - tag: Service
+              value: Cron
+          triggers:
+            - uuid: d11d21aaf52142ee845f271d66710abb
+              expression: 'avg(/TTVH Process Monitor/proc.cpu.util[{$CRON_PROCESS_NAME},,total],5m)>30'
+              name: 'Cron high CPU usage on {HOST.NAME} (>30%)'
+              priority: WARNING
+
+        - uuid: 799858178e6945429592b2dc0741d16b
+          name: 'Rsyslog CPU Usage'
+          key: 'proc.cpu.util[{$RSYSLOG_PROCESS_NAME},,total]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: '%'
+          description: 'Total CPU usage by rsyslog processes'
+          tags:
+            - tag: Application
+              value: 'Process CPU'
+            - tag: Service
+              value: Rsyslog
+          triggers:
+            - uuid: 799858178e6945429592b2dc0741d16c
+              expression: 'avg(/TTVH Process Monitor/proc.cpu.util[{$RSYSLOG_PROCESS_NAME},,total],5m)>20'
+              name: 'Rsyslog high CPU usage on {HOST.NAME} (>20%)'
+              priority: WARNING
+
+        # Process Memory Usage (RSS)
+        - uuid: 9db670d9d7c34f868dd3887b18d3511d
+          name: 'SSH Process Memory (RSS)'
+          key: 'proc.mem[{$SSH_PROCESS_NAME},,,,rss]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: B
+          description: 'Total RSS memory used by SSH processes'
+          tags:
+            - tag: Application
+              value: 'Process Memory'
+            - tag: Service
+              value: SSH
+          triggers:
+            - uuid: 9db670d9d7c34f868dd3887b18d3511e
+              expression: 'last(/TTVH Process Monitor/proc.mem[{$SSH_PROCESS_NAME},,,,rss])>{$HIGH_MEMORY_THRESHOLD_MB}*1024*1024'
+              name: 'SSH memory usage is high on {HOST.NAME} (>{$HIGH_MEMORY_THRESHOLD_MB}MB)'
+              priority: WARNING
+
+        - uuid: 8c4f2a1b3e9d4567a8b2c5d6e7f89012
+          name: 'Zabbix Agent Memory (RSS)'
+          key: 'proc.mem[,,,zabbix_agent,rss]'
+          delay: '{$PERFORMANCE_CHECK_INTERVAL}'
+          history: '30d'
+          trends: '365d'
+          units: B
+          description: 'Total RSS memory used by Zabbix agent processes'
+          tags:
+            - tag: Application
+              value: 'Process Memory'
+            - tag: Service
+              value: 'Zabbix Agent'
+          triggers:
+            - uuid: 8c4f2a1b3e9d4567a8b2c5d6e7f89013
+              expression: 'last(/TTVH Process Monitor/proc.mem[,,,zabbix_agent,rss])>{$HIGH_MEMORY_THRESHOLD_MB}*1024*1024'
+              name: 'Zabbix agent memory usage is high on {HOST.NAME} (>{$HIGH_MEMORY_THRESHOLD_MB}MB)'
+              priority: WARNING
+              tags:
+                - tag: Group
+                  value: Service
+                - tag: TTVH
+                  value: WARNING
