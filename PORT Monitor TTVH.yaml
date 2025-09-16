@@ -1,0 +1,247 @@
+zabbix_export:
+  version: '6.0'
+  date: '2025-09-15T10:00:00Z'
+  groups:
+    - uuid: 2bc45bfed4b85c38be0b2433d3bf6f5g
+      name: 'Templates/Network Services TTVH'
+  templates:
+    - uuid: 9e519e0c6e5458830b5abf39cc8cebc65
+      template: 'PORT Monitor TTVH'
+      name: 'PORT Monitor TTVH'
+      groups:
+        - name: 'Templates/Network Services TTVH'
+      macros:
+        - macro: '{$TCP.PORT}'
+          value: '80'
+        - macro: '{$UDP.PORT}'
+          value: '53'
+        - macro: '{$IP}'
+          value: '127.0.0.1'
+        - macro: '{$SERVICE.NAME}'
+          value: 'Generic Service'
+        - macro: '{$INTERVAL.TCP.CHECK}'
+          value: '60s'
+        - macro: '{$INTERVAL.UDP.CHECK}'
+          value: '60s'
+      items:
+        # TCP Items
+        - uuid: d88d11362b9f53129c6cce4844d03486
+          name: '{$SERVICE.NAME}: TCP Port {$TCP.PORT} is in LISTEN state'
+          key: 'net.tcp.listen[{$TCP.PORT}]'
+          delay: '{$INTERVAL.TCP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          description: 'Kiểm tra xem cổng TCP có đang ở trạng thái LISTEN (sẵn sàng nhận kết nối) hay không. (1: LISTEN, 0: Không)'
+          tags:
+            - tag: Application
+              value: 'TCP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: f99f33473ca064249d7ddf5955e14597
+              expression: 'last(/PORT Monitor TTVH/net.tcp.listen[{$TCP.PORT}])=0'
+              name: '{$SERVICE.NAME}: TCP service is not listening on port {$TCP.PORT}'
+              priority: AVERAGE
+              description: 'Dịch vụ TCP không ở trạng thái LISTEN trên cổng {$TCP.PORT}, có thể tiến trình đã dừng hoặc bị treo.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: AVERAGE
+
+        - uuid: e99e22473db175359e8eef6066f25608
+          name: '{$SERVICE.NAME}: TCP Port {$TCP.PORT} connectivity'
+          key: 'net.tcp.port[{$IP},{$TCP.PORT}]'
+          delay: '{$INTERVAL.TCP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          description: 'Kiểm tra khả năng thiết lập kết nối TCP đến cổng chỉ định. (1: Có thể kết nối, 0: Không thể)'
+          tags:
+            - tag: Application
+              value: 'TCP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: 1aa144584eb286460f9ffg7177g36719
+              expression: 'last(/PORT Monitor TTVH/net.tcp.port[{$IP},{$TCP.PORT}])=0'
+              name: '{$SERVICE.NAME}: TCP service is down on port {$TCP.PORT}'
+              priority: HIGH
+              description: 'Dịch vụ TCP không thể kết nối trên cổng {$TCP.PORT}.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: 2bb255695fc397571gaag8288h47820
+          name: '{$SERVICE.NAME}: TCP Service check'
+          key: 'net.tcp.service[tcp,{$IP},{$TCP.PORT}]'
+          delay: '{$INTERVAL.TCP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          description: 'Kiểm tra xem một dịch vụ TCP cụ thể có đang chạy và chấp nhận kết nối hay không. (1: Chạy, 0: Dừng)'
+          tags:
+            - tag: Application
+              value: 'TCP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: 3cc366706gd4a8682hbbh9399i58931
+              expression: 'last(/PORT Monitor TTVH/net.tcp.service[tcp,{$IP},{$TCP.PORT}])=0'
+              name: '{$SERVICE.NAME}: TCP Service check failed on port {$TCP.PORT}'
+              priority: HIGH
+              description: 'Giám sát trạng thái của một dịch vụ TCP cụ thể. Dịch vụ không chạy hoặc không chấp nhận kết nối.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: 4dd477817he5b9793icci0400j69042
+          name: '{$SERVICE.NAME}: TCP Service response time'
+          key: 'net.tcp.service.perf[tcp,{$IP},{$TCP.PORT}]'
+          delay: '{$INTERVAL.TCP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          value_type: FLOAT
+          units: 's'
+          description: 'Đo lường hiệu suất (thời gian phản hồi tính bằng giây) của dịch vụ TCP. (0: Dịch vụ dừng)'
+          tags:
+            - tag: Application
+              value: 'TCP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: 5ee588928if6ca804jddj1511k70153
+              expression: 'last(/PORT Monitor TTVH/net.tcp.service.perf[tcp,{$IP},{$TCP.PORT}])>5'
+              name: '{$SERVICE.NAME}: TCP service has high response time on port {$TCP.PORT}'
+              priority: WARNING
+              description: 'Thời gian phản hồi của dịch vụ TCP vượt ngưỡng cho phép (> 5 giây).'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: WARNING
+
+        - uuid: 6ff699039jg7db915keek2622l81264
+          name: '{$SERVICE.NAME}: TCP established connections on port {$TCP.PORT}'
+          key: 'net.tcp.socket.count[,{$TCP.PORT},,,established]'
+          delay: '{$INTERVAL.TCP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          description: 'Đếm số lượng socket TCP đang ở trạng thái established (đã kết nối) trên cổng cục bộ.'
+          tags:
+            - tag: Application
+              value: 'TCP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: 700700140kh8ec026leel3733m92375
+              expression: 'last(/PORT Monitor TTVH/net.tcp.socket.count[,{$TCP.PORT},,,established])>100'
+              name: '{$SERVICE.NAME}: High number of TCP connections on port {$TCP.PORT}'
+              priority: AVERAGE
+              description: 'Số lượng kết nối TCP established trên cổng {$TCP.PORT} vượt ngưỡng, cho thấy tải đang cao.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: AVERAGE
+
+        # UDP Items
+        - uuid: 8118811251li9fd137mffm4844n03486
+          name: '{$SERVICE.NAME}: UDP Port {$UDP.PORT} is in LISTEN state'
+          key: 'net.udp.listen[{$UDP.PORT}]'
+          delay: '{$INTERVAL.UDP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          description: 'Kiểm tra xem cổng UDP có đang ở trạng thái LISTEN hay không. (1: LISTEN, 0: Không)'
+          tags:
+            - tag: Application
+              value: 'UDP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: 9229922362mjaef248nggn5955o25608
+              expression: 'last(/PORT Monitor TTVH/net.udp.listen[{$UDP.PORT}])=0'
+              name: '{$SERVICE.NAME}: UDP service is not listening on port {$UDP.PORT}'
+              priority: AVERAGE
+              description: 'Dịch vụ UDP không ở trạng thái LISTEN trên cổng {$UDP.PORT}.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: AVERAGE
+
+        - uuid: a33aa33473nkbfg359oggp6066p36719
+          name: '{$SERVICE.NAME}: UDP Service check (NTP)'
+          key: 'net.udp.service[ntp,{$IP},{$UDP.PORT}]'
+          delay: '{$INTERVAL.UDP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          description: 'Kiểm tra xem dịch vụ UDP (hiện chỉ hỗ trợ NTP) có đang chạy và phản hồi hay không. (1: Chạy, 0: Dừng)'
+          tags:
+            - tag: Application
+              value: 'UDP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: b44bb44584oclh470phhq7177q47820
+              expression: 'last(/PORT Monitor TTVH/net.udp.service[ntp,{$IP},{$UDP.PORT}])=0'
+              name: '{$SERVICE.NAME}: UDP service is down on port {$UDP.PORT}'
+              priority: HIGH
+              description: 'Dịch vụ UDP (NTP) không phản hồi trên cổng {$UDP.PORT}.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+
+        - uuid: c55cc55695pdmi581qiir8288r58931
+          name: '{$SERVICE.NAME}: UDP Service response time (NTP)'
+          key: 'net.udp.service.perf[ntp,{$IP},{$UDP.PORT}]'
+          delay: '{$INTERVAL.UDP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          value_type: FLOAT
+          units: 's'
+          description: 'Đo lường hiệu suất (thời gian phản hồi tính bằng giây) của dịch vụ UDP (NTP). (0: Dịch vụ dừng)'
+          tags:
+            - tag: Application
+              value: 'UDP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: d66dd66706qenj692rjjs9399s60042
+              expression: 'last(/PORT Monitor TTVH/net.udp.service.perf[ntp,{$IP},{$UDP.PORT}])>2'
+              name: '{$SERVICE.NAME}: UDP service has high response time on port {$UDP.PORT}'
+              priority: WARNING
+              description: 'Thời gian phản hồi của dịch vụ UDP (NTP) vượt ngưỡng cho phép (> 2 giây).'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: WARNING
+
+        - uuid: e77ee77817rfok703skkt0400t70153
+          name: '{$SERVICE.NAME}: UDP connected sockets'
+          key: 'net.udp.socket.count[,,,,established]'
+          delay: '{$INTERVAL.UDP.CHECK}'
+          history: '7d'
+          trends: '365d'
+          description: 'Đếm số lượng socket UDP đang ở trạng thái kết nối (established hoặc unconn).'
+          tags:
+            - tag: Application
+              value: 'UDP Services'
+            - tag: Service
+              value: '{$SERVICE.NAME}'
+          triggers:
+            - uuid: f88ff88928sgpl814tllu1511u81264
+              expression: 'last(/PORT Monitor TTVH/net.udp.socket.count[,,,,established])>50'
+              name: '{$SERVICE.NAME}: High number of UDP connected sockets on port {$UDP.PORT}'
+              priority: WARNING
+              description: 'Giám sát số lượng socket UDP đang kết nối. Có thể giúp nhận biết các hoạt động bất thường hoặc sự quá tải.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: WARNING

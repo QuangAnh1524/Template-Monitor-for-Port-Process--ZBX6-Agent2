@@ -1,0 +1,189 @@
+zabbix_export:
+  version: '6.0'
+  date: '2025-09-15T10:00:00Z'
+  groups:
+    - uuid: 3cd56cgfe5c96d49cf1c3544e4cg7g6h
+      name: 'Templates/Process Monitoring TTVH'
+  templates:
+    - uuid: af6a0f1d7f6569941c6bcgf4acdfdcecd76
+      template: 'PROCESS Monitor TTVH'
+      name: 'PROCESS Monitor TTVH'
+      groups:
+        - name: 'Templates/Process Monitoring TTVH'
+      macros:
+        - macro: '{$PROCESS.NAME}'
+          value: 'nginx'
+        - macro: '{$PROCESS.USER}'
+          value: ''
+        - macro: '{$PROCESS.CMDLINE}'
+          value: ''
+        - macro: '{$INTERVAL.PROCESS.COUNT}'
+          value: '60s'
+        - macro: '{$INTERVAL.CPU.UTIL}'
+          value: '60s'
+        - macro: '{$INTERVAL.MEMORY}'
+          value: '60s'
+        - macro: '{$INTERVAL.PROCESS.UPTIME}'
+          value: '300s'
+        - macro: '{$THRESHOLD.CPU.WARNING}'
+          value: '80'
+        - macro: '{$THRESHOLD.CPU.AVERAGE}'
+          value: '60'
+        - macro: '{$THRESHOLD.MEMORY.RSS}'
+          value: '2147483648'
+        - macro: '{$THRESHOLD.MEMORY.VSIZE}'
+          value: '5368709120'
+        - macro: '{$THRESHOLD.PROCESS.MAX}'
+          value: '10'
+        - macro: '{$THRESHOLD.UPTIME.MAX}'
+          value: '86400'
+      items:
+        # Process Count
+        - uuid: g99g11473eb297672hgghi9400j70153
+          name: '{$PROCESS.NAME}: Process count'
+          key: 'proc.num[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}]'
+          delay: '{$INTERVAL.PROCESS.COUNT}'
+          history: '7d'
+          trends: '365d'
+          description: 'Đếm số lượng tiến trình đang chạy theo tên và dòng lệnh. (Kết quả: số nguyên)'
+          tags:
+            - tag: Application
+              value: 'Process Monitoring'
+            - tag: Process
+              value: '{$PROCESS.NAME}'
+          triggers:
+            - uuid: h00h22584fc3a8683ihhij8288k81264
+              expression: 'last(/PROCESS Monitor TTVH/proc.num[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}])=0'
+              name: '{$PROCESS.NAME}: Process is down'
+              priority: HIGH
+              description: 'Kích hoạt khi không tìm thấy bất kỳ tiến trình nào phù hợp.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: HIGH
+            - uuid: i11i33695gd4b9794jiiik9399l92375
+              expression: 'last(/PROCESS Monitor TTVH/proc.num[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}])>{$THRESHOLD.PROCESS.MAX}'
+              name: '{$PROCESS.NAME}: Too many processes running'
+              priority: AVERAGE
+              description: 'Kích hoạt khi số lượng tiến trình vượt quá ngưỡng tối đa cho phép, có thể là dấu hiệu của lỗi fork hoặc tấn công.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: AVERAGE
+
+        # CPU Utilization
+        - uuid: j22j44817he5ca805kkkl0411m03486
+          name: '{$PROCESS.NAME}: CPU utilization'
+          key: 'proc.cpu.util[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}]'
+          delay: '{$INTERVAL.CPU.UTIL}'
+          history: '7d'
+          trends: '365d'
+          value_type: FLOAT
+          units: '%'
+          description: 'Mức sử dụng CPU trung bình (%) của tất cả các tiến trình phù hợp.'
+          tags:
+            - tag: Application
+              value: 'Process Monitoring'
+            - tag: Process
+              value: '{$PROCESS.NAME}'
+          triggers:
+            - uuid: k33k55928if6db916lllm1522n14597
+              expression: 'last(/PROCESS Monitor TTVH/proc.cpu.util[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}],#3:now-2m)>{$THRESHOLD.CPU.WARNING}'
+              name: '{$PROCESS.NAME}: High CPU utilization (Spike)'
+              priority: WARNING
+              description: 'Kích hoạt khi mức sử dụng CPU tăng đột biến trong một khoảng thời gian ngắn (> {$THRESHOLD.CPU.WARNING}% trong 2 phút).'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: WARNING
+            - uuid: l44l66039jg7ec027mmmn2633o25608
+              expression: 'last(/PROCESS Monitor TTVH/proc.cpu.util[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}],#10:now-10m)>{$THRESHOLD.CPU.AVERAGE}'
+              name: '{$PROCESS.NAME}: High CPU utilization (Sustained)'
+              priority: AVERAGE
+              description: 'Kích hoạt khi mức sử dụng CPU duy trì ở ngưỡng cao trong thời gian dài (> {$THRESHOLD.CPU.AVERAGE}% trong 10 phút).'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: AVERAGE
+
+        # Memory RSS
+        - uuid: m55m77140kh8fd138nnno3744p36719
+          name: '{$PROCESS.NAME}: Memory usage (RSS)'
+          key: 'proc.mem[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE},rss]'
+          delay: '{$INTERVAL.MEMORY}'
+          history: '7d'
+          trends: '365d'
+          units: B
+          description: 'Dung lượng bộ nhớ vật lý (RAM) mà các tiến trình đang sử dụng (đơn vị: Bytes).'
+          tags:
+            - tag: Application
+              value: 'Process Monitoring'
+            - tag: Process
+              value: '{$PROCESS.NAME}'
+          triggers:
+            - uuid: n66n88251li9ge249oopp4855q47820
+              expression: 'last(/PROCESS Monitor TTVH/proc.mem[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE},rss])>{$THRESHOLD.MEMORY.RSS}'
+              name: '{$PROCESS.NAME}: High memory usage (RSS)'
+              priority: AVERAGE
+              description: 'Kích hoạt khi dung lượng bộ nhớ vật lý vượt quá ngưỡng cho phép (> {$THRESHOLD.MEMORY.RSS} bytes).'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: AVERAGE
+
+        # Memory VSIZE
+        - uuid: o77o99362mjahf350pppq5966r58931
+          name: '{$PROCESS.NAME}: Memory usage (VSIZE)'
+          key: 'proc.mem[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE},vsize]'
+          delay: '{$INTERVAL.MEMORY}'
+          history: '7d'
+          trends: '365d'
+          units: B
+          description: 'Tổng dung lượng bộ nhớ ảo của các tiến trình (đơn vị: Bytes).'
+          tags:
+            - tag: Application
+              value: 'Process Monitoring'
+            - tag: Process
+              value: '{$PROCESS.NAME}'
+          triggers:
+            - uuid: p88p00473nkbig461qqqr6077s70042
+              expression: 'last(/PROCESS Monitor TTVH/proc.mem[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE},vsize])>{$THRESHOLD.MEMORY.VSIZE}'
+              name: '{$PROCESS.NAME}: Possible memory leak (VSIZE)'
+              priority: WARNING
+              description: 'Kích hoạt khi dung lượng bộ nhớ ảo vượt quá ngưỡng (> {$THRESHOLD.MEMORY.VSIZE} bytes), có thể là dấu hiệu rò rỉ bộ nhớ.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: WARNING
+
+        # Process Uptime
+        - uuid: q99q11584oclj572rrrs7188t81264
+          name: '{$PROCESS.NAME}: Process uptime'
+          key: 'proc.uptime[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}]'
+          delay: '{$INTERVAL.PROCESS.UPTIME}'
+          history: '7d'
+          trends: '365d'
+          units: s
+          description: 'Thời gian tiến trình đã chạy (đơn vị: giây). Dùng để phát hiện các tiến trình bị treo.'
+          tags:
+            - tag: Application
+              value: 'Process Monitoring'
+            - tag: Process
+              value: '{$PROCESS.NAME}'
+          triggers:
+            - uuid: r00r22695pdmk683ssst8299u92375
+              expression: 'last(/PROCESS Monitor TTVH/proc.uptime[{$PROCESS.NAME},{$PROCESS.USER},,{$PROCESS.CMDLINE}])>{$THRESHOLD.UPTIME.MAX}'
+              name: '{$PROCESS.NAME}: Process has been running for too long'
+              priority: WARNING
+              description: 'Kích hoạt khi tiến trình đã chạy lâu hơn dự kiến (> {$THRESHOLD.UPTIME.MAX} giây), có thể chỉ ra một tiến trình bị treo hoặc đang gặp vấn đề.'
+              tags:
+                - tag: Group
+                  value: TTVH
+                - tag: TTVH
+                  value: WARNING
