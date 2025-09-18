@@ -13,14 +13,8 @@ if [ -z "$SYSTEM_NAME" ] || [ -z "$PATTERN" ]; then
     exit 1
 fi
 
-# Mapping hệ thống nội bộ
+# he thong noi bo
 case "$SYSTEM_NAME" in
-    "ABC"|"abc")
-        URL="http://10.144.20.100:80"
-        ;;
-    "SYSTEM2"|"system2")
-        URL="http://10.144.20.101:80"
-        ;;
     "APP1"|"app1")
         URL="http://10.144.64.102:8080"
         ;;
@@ -47,24 +41,24 @@ case "$SYSTEM_NAME" in
         ;;
 esac
 
-# Log để debug (có thể bỏ comment nếu cần)
+# log debug
 # echo "Checking URL: $URL for pattern: $PATTERN" >> /tmp/zabbix_check.log
 
-# Thực hiện kết nối và lấy nội dung
+# ket noi va lay noi dung
 CONTENT=$(curl -s --max-time "$TIMEOUT" --connect-timeout 5 "$URL" 2>/dev/null)
 CURL_EXIT_CODE=$?
 
-# Kiểm tra kết nối có thành công không
+# ktra ket noi
 if [ $CURL_EXIT_CODE -ne 0 ]; then
-    # Log lỗi nếu cần debug
+    # log debugg
     # echo "$(date): Failed to connect to $URL, curl exit code: $CURL_EXIT_CODE" >> /tmp/zabbix_check.log
-    echo "0"  # Không kết nối được
+    echo "0"  # ko ket noi duoc
     exit 0
 fi
 
-# Kiểm tra nội dung có rỗng không
+# kiem tra noi dung co rong ko
 if [ -z "$CONTENT" ]; then
-    echo "2"  # Không có nội dung
+    echo "2"  # ko co noi dung
     exit 2
 fi
 
