@@ -16,43 +16,43 @@ if [ -z "$TARGET" ] || [ -z "$PATTERN" ]; then
     exit 1
 fi
 
-# Xử lý URL
+# xu ly url
 URL="$TARGET"
 
-# Nếu là IP:PORT, thêm http://
+# neu la ip:port thi them http://
 if [[ "$TARGET" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+$ ]]; then
     URL="http://$TARGET"
-# Nếu chưa có protocol, thêm http://
+# chua co http hoac https thi them http://
 elif [[ ! "$TARGET" =~ ^https?:// ]]; then
     URL="http://$TARGET"
 fi
 
-# Log debug (uncomment nếu cần)
+# log de debug 
 # echo "$(date): Checking $TARGET -> $URL for pattern: $PATTERN" >> /tmp/zabbix_check.log
 
-# Thực hiện kết nối
+# knoi
 CONTENT=$(curl -s --max-time "$TIMEOUT" --connect-timeout 5 "$URL" 2>/dev/null)
 CURL_EXIT_CODE=$?
 
-# Kiểm tra kết nối
+# check ket noi
 if [ $CURL_EXIT_CODE -ne 0 ]; then
-    # Log lỗi (uncomment nếu cần debug)
+    # log de debug
     # echo "$(date): Failed to connect to $URL, curl exit code: $CURL_EXIT_CODE" >> /tmp/zabbix_check.log
-    echo "0"  # Không kết nối được
+    echo "0"  # ko ket noi duoc
     exit 0
 fi
 
-# Kiểm tra nội dung có rỗng không
+# check noi dung co rong ko
 if [ -z "$CONTENT" ]; then
-    echo "2"  # Không có nội dung
+    echo "2"  # ko co noi dung
     exit 0
 fi
 
-# Tìm pattern trong nội dung (case insensitive)
+# tim pattern
 if echo "$CONTENT" | grep -qi "$PATTERN"; then
-    echo "1"  # Tìm thấy pattern
+    echo "1"  # tim thay
 else
-    echo "3"  # Không tìm thấy pattern
+    echo "3"  # ko thay
 fi
 
 exit 0
