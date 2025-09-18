@@ -1,6 +1,6 @@
 #!/bin/bash
-# Script: /etc/zabbix/scripts/check_internal_systems_part2.sh
-# Usage: check_internal_systems.sh <ip:port_or_url> [pattern] [timeout]
+# Script: /etc/zabbix/scripts/check_internal_systems_optionalpattern.sh
+# Usage: check_internal_systems_optionalpattern.sh <ip:port_or_url> [pattern] [timeout]
 # Purpose: Generic script for checking any IP:PORT or URL
 
 TARGET="$1"
